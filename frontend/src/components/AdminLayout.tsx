@@ -4,34 +4,31 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Medal, Radio, Trophy, UsersRound } from "lucide-react";
 import clsx from "clsx";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { BrandMark } from "./BrandMark";
-import { authService } from "@/services/api/services";
+import { logout, useCurrentUser } from "@/services/session";
 
 const links = [
   { href: "/admin", label: "Tableau de bord", icon: Trophy },
   { href: "/admin/events", label: "Événements", icon: Medal },
   { href: "/admin/athletes", label: "Athlètes", icon: Radio },
-  { href: "/admin/users", label: "Inscriptions", icon: UsersRound }
+  { href: "/admin/users", label: "Utilisateurs", icon: UsersRound }
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [allowed, setAllowed] = useState(false);
+  const session = useCurrentUser();
+  const allowed = session.status === "authenticated" && session.user.role === "ADMIN";
 
   useEffect(() => {
-    authService.me()
-      .then((user) => {
-        if (user.role !== "ADMIN") router.replace("/events");
-        else setAllowed(true);
-      })
-      .catch(() => router.replace("/login"));
-  }, [router]);
+    if (session.status === "anonymous") router.replace("/login");
+    else if (session.status === "authenticated" && session.user.role !== "ADMIN") router.replace("/events");
+  }, [session, router]);
 
-  async function logout() {
-    await authService.logout();
-    router.push("/login");
+  async function onLogout() {
+    await logout();
+    router.push("/events");
   }
 
   if (!allowed) {
@@ -52,7 +49,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
-        <button onClick={logout} className="mt-6 hidden items-center gap-2 rounded-md px-3 py-3 text-sm font-bold text-red-200 hover:bg-white/10 focus-ring lg:flex">
+        <button onClick={onLogout} className="mt-6 hidden items-center gap-2 rounded-md px-3 py-3 text-sm font-bold text-red-200 hover:bg-white/10 focus-ring lg:flex">
           <LogOut size={18} /> Déconnexion
         </button>
       </aside>

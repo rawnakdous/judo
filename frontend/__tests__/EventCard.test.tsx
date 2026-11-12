@@ -2,9 +2,9 @@ import { render, screen } from "@testing-library/react";
 import { EventCard } from "@/components/EventCard";
 import type { Event } from "@/types/domain";
 
-jest.mock("next/image", () => function Image(props: React.ImgHTMLAttributes<HTMLImageElement> & { fill?: boolean }) {
-  const { fill, ...imgProps } = props;
-  void fill;
+jest.mock("next/image", () => function Image(props: React.ImgHTMLAttributes<HTMLImageElement> & { fill?: boolean; unoptimized?: boolean; priority?: boolean }) {
+  const { fill, unoptimized, priority, ...imgProps } = props;
+  void fill; void unoptimized; void priority;
   return <img {...imgProps} alt={props.alt ?? ""} />;
 });
 

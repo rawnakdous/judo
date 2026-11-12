@@ -1,0 +1,27 @@
+# Test profile: the datasource is provided by Testcontainers (@ServiceConnection).
+app:
+  jwt:
+    secret: test-secret-for-integration-tests-only-0123456789abcdef
+    expiration-minutes: 60
+    cookie-name: jcc_token
+    secure-cookie: false
+  cors:
+    allowed-origins: http://localhost:3000
+  seed:
+    enabled: false
+  registration:
+    enabled: true # most auth tests register users; RegistrationClosedIntegrationTest covers "false"
+  bootstrap-admin:
+    email: ""
+    password: ""
+
+logging:
+  level:
+    org.testcontainers: WARN
+    com.github.dockerjava: WARN
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: true

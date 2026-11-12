@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Judo Club Constantine">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a1326"/>
+      <stop offset="1" stop-color="#061a36"/>
+    </linearGradient>
+    <pattern id="tatami" width="200" height="100" patternUnits="userSpaceOnUse">
+      <rect width="200" height="100" fill="none" stroke="#ffffff" stroke-opacity="0.05" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#tatami)"/>
+  <rect x="0" y="610" width="1600" height="18" fill="#d10f22"/>
+  <circle cx="1240" cy="330" r="190" fill="none" stroke="#d10f22" stroke-opacity="0.85" stroke-width="22"/>
+  <text x="120" y="400" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="110" font-weight="900">JUDO CLUB</text>
+  <text x="120" y="520" fill="#d10f22" font-family="Arial, Helvetica, sans-serif" font-size="110" font-weight="900">CONSTANTINE</text>
+</svg>

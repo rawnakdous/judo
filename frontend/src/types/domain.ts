@@ -68,7 +68,28 @@ export type TatamiLive = {
   upcomingCombats: Combat[];
 };
 
+/** Result of POST /events/{id}/combats/import. */
+export type CombatImportResult = { created: number; athletesCreated: number };
+
+/** 400 body of a rejected import: nothing was imported. `row` = line in the file (header = 1). */
+export type CombatImportError = {
+  status: number;
+  message: string;
+  timestamp: string;
+  errors?: { row: number; message: string }[];
+};
+
+/** 409 body of POST /events/{e}/tatamis/{t}/next when the operator's view was out of date. */
+export type StaleTatamiError = {
+  status: number;
+  message: string;
+  timestamp: string;
+  tatami: TatamiLive;
+};
+
 export type EventLive = {
   event: Event;
   tatamis: TatamiLive[];
+  /** Server time when this snapshot was built (ISO-8601). */
+  generatedAt: string;
 };

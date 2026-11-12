@@ -1,10 +1,11 @@
+# Shared configuration. Profile files:
+#   application-dev.yml   local development (default profile): demo data, local DB, dev secret
+#   application-prod.yml  production: everything sensitive comes from the environment, no defaults
 spring:
   application:
     name: judo-club-constantine-api
-  datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/judo_club_constantine}
-    username: ${DATABASE_USERNAME:judo}
-    password: ${DATABASE_PASSWORD:judo}
+  profiles:
+    default: dev
   jpa:
     hibernate:
       ddl-auto: validate
@@ -16,21 +17,35 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  web:
+    # User-facing messages (incl. Bean Validation) are always French.
+    locale: fr
+    locale-resolver: fixed
 
 server:
   port: ${SERVER_PORT:8080}
-  servlet:
-    context-path: /
 
 app:
   jwt:
-    secret: ${JWT_SECRET:change-this-development-secret-change-before-production}
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:1440}
     cookie-name: ${JWT_COOKIE_NAME:jcc_token}
     secure-cookie: ${JWT_SECURE_COOKIE:false}
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+    # Comma-separated origins. Empty = no CORS (production is same-origin behind Caddy).
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+  # Creates the first ADMIN on startup if no admin exists and both values are set.
+  bootstrap-admin:
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
+  rate-limit:
+    login:
+      # Applies to POST /api/auth/login and /api/auth/register.
+      ip-max-attempts: ${LOGIN_RATE_LIMIT_IP_MAX_ATTEMPTS:20}
+      email-max-failures: ${LOGIN_RATE_LIMIT_EMAIL_MAX_FAILURES:15}
+      window: ${LOGIN_RATE_LIMIT_WINDOW:10m}
+  registration:
+    # Public sign-up (POST /api/auth/register). Off by default: visitors browse without an account.
+    enabled: ${REGISTRATION_ENABLED:false}
   seed:
-    enabled: ${SEED_DEMO_DATA:true}
-    admin-email: ${ADMIN_EMAIL:admin@judoclub.dz}
-    admin-password: ${ADMIN_PASSWORD:Admin123!}
+    # Demo event/athletes/user. Only honoured in the dev profile.
+    enabled: false

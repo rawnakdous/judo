@@ -9,3 +9,8 @@ dist/
 .idea/
 .vscode/
 .DS_Store
+*.tsbuildinfo
+frontend/AGENTS.md
+frontend/CLAUDE.md
+docs/*
+!docs/samples/

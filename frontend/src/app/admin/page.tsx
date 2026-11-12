@@ -8,7 +8,7 @@ const cards = [
   { href: "/admin/events", title: "Gestion des événements", icon: Medal },
   { href: "/admin/events", title: "Gestion du Live", icon: Radio },
   { href: "/admin/athletes", title: "Athlètes", icon: Trophy },
-  { href: "/admin/users", title: "Inscriptions", icon: UsersRound }
+  { href: "/admin/users", title: "Utilisateurs", icon: UsersRound }
 ];
 
 export default function AdminDashboard() {
