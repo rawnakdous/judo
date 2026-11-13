@@ -2,6 +2,7 @@
 
 import { FormEvent } from "react";
 import type { Event } from "@/types/domain";
+import { fromClubInputValue, toClubInputValue } from "@/utils/dates";
 
 export type EventPayload = {
   title: string;
@@ -22,8 +23,8 @@ export function AdminEventForm({ event, loading, onSubmit }: { event?: Event; lo
       description: data.description,
       imageUrl: data.imageUrl,
       location: data.location,
-      startDatetime: new Date(data.startDatetime).toISOString(),
-      endDatetime: new Date(data.endDatetime).toISOString(),
+      startDatetime: fromClubInputValue(data.startDatetime),
+      endDatetime: fromClubInputValue(data.endDatetime),
       organizerName: data.organizerName
     });
   }
@@ -34,8 +35,8 @@ export function AdminEventForm({ event, loading, onSubmit }: { event?: Event; lo
       <Field name="organizerName" label="Organisateur" defaultValue={event?.organizerName ?? "Judo Club Constantine"} required />
       <Field name="imageUrl" label="Image" defaultValue={event?.imageUrl ?? ""} />
       <Field name="location" label="Lieu" defaultValue={event?.location} required />
-      <Field name="startDatetime" label="Date de début" type="datetime-local" defaultValue={toLocal(event?.startDatetime)} required />
-      <Field name="endDatetime" label="Date de fin" type="datetime-local" defaultValue={toLocal(event?.endDatetime)} required />
+      <Field name="startDatetime" label="Date de début (heure d’Algérie)" type="datetime-local" defaultValue={toClubInputValue(event?.startDatetime)} required />
+      <Field name="endDatetime" label="Date de fin (heure d’Algérie)" type="datetime-local" defaultValue={toClubInputValue(event?.endDatetime)} required />
       <label className="lg:col-span-2">
         <span className="text-sm font-black text-navy">Description</span>
         <textarea name="description" defaultValue={event?.description} required rows={6} className="mt-2 w-full rounded-md border border-slate-200 px-3 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-redbrand" />
@@ -55,10 +56,4 @@ function Field(props: React.InputHTMLAttributes<HTMLInputElement> & { label: str
       <input {...inputProps} className="mt-2 w-full rounded-md border border-slate-200 px-3 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-redbrand" />
     </label>
   );
-}
-
-function toLocal(value?: string | null) {
-  if (!value) return "";
-  const date = new Date(value);
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }

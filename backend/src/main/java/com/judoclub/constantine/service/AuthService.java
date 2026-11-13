@@ -4,13 +4,15 @@ import com.judoclub.constantine.dto.AuthDtos;
 import com.judoclub.constantine.dto.UserDto;
 import com.judoclub.constantine.entity.Role;
 import com.judoclub.constantine.entity.User;
-import com.judoclub.constantine.exception.BadRequestException;
+import com.judoclub.constantine.exception.ConflictException;
+import com.judoclub.constantine.exception.ForbiddenException;
 import com.judoclub.constantine.repository.UserRepository;
 import com.judoclub.constantine.security.CookieUtil;
 import com.judoclub.constantine.security.JwtService;
 import com.judoclub.constantine.security.UserPrincipal;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,10 +31,17 @@ public class AuthService {
     private final CookieUtil cookieUtil;
     private final MapperService mapper;
 
+    /** Public sign-up switch (REGISTRATION_ENABLED). Off by default: only admins need accounts. */
+    @Value("${app.registration.enabled:false}")
+    private boolean registrationEnabled;
+
     @Transactional
     public UserDto register(AuthDtos.RegisterRequest request, HttpServletResponse response) {
+        if (!registrationEnabled) {
+            throw new ForbiddenException("Les inscriptions sont fermées");
+        }
         if (userRepository.existsByEmailIgnoreCase(request.email())) {
-            throw new BadRequestException("Cette adresse e-mail est déjà utilisée");
+            throw new ConflictException("Cette adresse e-mail est déjà utilisée");
         }
         User user = User.builder()
                 .firstName(request.firstName())

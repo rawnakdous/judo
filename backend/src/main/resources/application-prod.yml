@@ -1,0 +1,15 @@
+# No defaults on purpose: a missing variable stops the application at startup.
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+server:
+  # Behind Caddy: trust X-Forwarded-* (client IP for rate limiting, https scheme).
+  forward-headers-strategy: framework
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    secure-cookie: ${JWT_SECURE_COOKIE:true}

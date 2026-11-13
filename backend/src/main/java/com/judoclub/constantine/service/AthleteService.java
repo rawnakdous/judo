@@ -4,6 +4,7 @@ import com.judoclub.constantine.dto.AthleteDtos;
 import com.judoclub.constantine.entity.Athlete;
 import com.judoclub.constantine.exception.ResourceNotFoundException;
 import com.judoclub.constantine.repository.AthleteRepository;
+import com.judoclub.constantine.util.Strings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ public class AthleteService {
     private final AthleteRepository athleteRepository;
     private final MapperService mapper;
 
+    @Transactional(readOnly = true)
     public List<AthleteDtos.AthleteResponse> list(String query) {
         List<Athlete> athletes = query == null || query.isBlank()
                 ? athleteRepository.findAll()
@@ -31,7 +33,7 @@ public class AthleteService {
     public AthleteDtos.AthleteResponse create(AthleteDtos.AthleteRequest request) {
         return mapper.athlete(athleteRepository.save(Athlete.builder()
                 .firstName(request.firstName()).lastName(request.lastName()).club(request.club())
-                .country(request.country()).profileImageUrl(request.profileImageUrl()).build()));
+                .country(Strings.blankToNull(request.country())).profileImageUrl(Strings.blankToNull(request.profileImageUrl())).build()));
     }
 
     @Transactional
@@ -40,8 +42,8 @@ public class AthleteService {
         athlete.setFirstName(request.firstName());
         athlete.setLastName(request.lastName());
         athlete.setClub(request.club());
-        athlete.setCountry(request.country());
-        athlete.setProfileImageUrl(request.profileImageUrl());
+        athlete.setCountry(Strings.blankToNull(request.country()));
+        athlete.setProfileImageUrl(Strings.blankToNull(request.profileImageUrl()));
         return mapper.athlete(athlete);
     }
 

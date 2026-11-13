@@ -1,6 +1,7 @@
 package com.judoclub.constantine.entity;
 
 import jakarta.persistence.*;
+import com.judoclub.constantine.exception.ConflictException;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -63,4 +64,30 @@ public class Combat {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    // State machine: UPCOMING -> IN_PROGRESS -> FINISHED, plus reset to UPCOMING from any state.
+    // "One IN_PROGRESS per tatami" is checked by the caller (and enforced by the DB, V8).
+
+    public void start(OffsetDateTime now) {
+        if (status != CombatStatus.UPCOMING) {
+            throw new ConflictException("Seul un combat à venir peut être démarré");
+        }
+        status = CombatStatus.IN_PROGRESS;
+        actualStartTime = now;
+        actualEndTime = null;
+    }
+
+    public void finish(OffsetDateTime now) {
+        if (status != CombatStatus.IN_PROGRESS) {
+            throw new ConflictException("Seul un combat en cours peut être terminé");
+        }
+        status = CombatStatus.FINISHED;
+        actualEndTime = now;
+    }
+
+    public void reset() {
+        status = CombatStatus.UPCOMING;
+        actualStartTime = null;
+        actualEndTime = null;
+    }
 }

@@ -15,10 +15,14 @@ import java.util.Optional;
 public class CookieUtil {
     private final String cookieName;
     private final boolean secureCookie;
+    private final Duration maxAge;
 
-    public CookieUtil(@Value("${app.jwt.cookie-name}") String cookieName, @Value("${app.jwt.secure-cookie}") boolean secureCookie) {
+    public CookieUtil(@Value("${app.jwt.cookie-name}") String cookieName,
+                      @Value("${app.jwt.secure-cookie}") boolean secureCookie,
+                      @Value("${app.jwt.expiration-minutes}") long expirationMinutes) {
         this.cookieName = cookieName;
         this.secureCookie = secureCookie;
+        this.maxAge = Duration.ofMinutes(expirationMinutes);
     }
 
     public Optional<String> readToken(HttpServletRequest request) {
@@ -35,9 +39,9 @@ public class CookieUtil {
         ResponseCookie cookie = ResponseCookie.from(cookieName, token)
                 .httpOnly(true)
                 .secure(secureCookie)
-                .sameSite(secureCookie ? "None" : "Lax")
+                .sameSite("Lax") // same-origin deployment; also blocks cross-site POSTs (CSRF)
                 .path("/")
-                .maxAge(Duration.ofDays(1))
+                .maxAge(maxAge)
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
     }
@@ -46,7 +50,7 @@ public class CookieUtil {
         ResponseCookie cookie = ResponseCookie.from(cookieName, "")
                 .httpOnly(true)
                 .secure(secureCookie)
-                .sameSite(secureCookie ? "None" : "Lax")
+                .sameSite("Lax") // same-origin deployment; also blocks cross-site POSTs (CSRF)
                 .path("/")
                 .maxAge(0)
                 .build();

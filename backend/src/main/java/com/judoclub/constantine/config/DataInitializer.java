@@ -7,35 +7,28 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
+/** Demo data for local development only (dev profile + app.seed.enabled). Never runs in prod or tests. */
 @Configuration
+@Profile("dev")
 @RequiredArgsConstructor
 public class DataInitializer {
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${app.seed.enabled}")
+    @Value("${app.seed.enabled:false}")
     private boolean seedEnabled;
-    @Value("${app.seed.admin-email}")
-    private String adminEmail;
-    @Value("${app.seed.admin-password}")
-    private String adminPassword;
 
     @Bean
+    @Order(2) // after AdminBootstrap
     CommandLineRunner seed(UserRepository users, EventRepository events, TatamiRepository tatamis, AthleteRepository athletes, CombatRepository combats) {
         return args -> {
             if (!seedEnabled) return;
-            users.findByEmailIgnoreCase(adminEmail).orElseGet(() -> users.save(User.builder()
-                    .firstName("Admin")
-                    .lastName("Constantine")
-                    .email(adminEmail.toLowerCase())
-                    .passwordHash(passwordEncoder.encode(adminPassword))
-                    .role(Role.ADMIN)
-                    .build()));
-
             users.findByEmailIgnoreCase("yacine@example.com").orElseGet(() -> users.save(User.builder()
                     .firstName("Yacine").lastName("B.").email("yacine@example.com")
                     .passwordHash(passwordEncoder.encode("User12345!")).role(Role.USER).build()));
@@ -56,10 +49,10 @@ public class DataInitializer {
             Tatami t2 = tatamis.save(Tatami.builder().event(savedEvent).number(2).name("Tapis 2").liveUrl("https://www.youtube.com/live/dQw4w9WgXcQ").active(true).build());
             Tatami t3 = tatamis.save(Tatami.builder().event(savedEvent).number(3).name("Tapis 3").liveUrl("https://www.youtube.com/live/dQw4w9WgXcQ").active(false).build());
 
-            Athlete a1 = athletes.save(Athlete.builder().firstName("Benali").lastName("Yacine").club("JS Bordj Bou Arréridj").country("Algérie").build());
-            Athlete a2 = athletes.save(Athlete.builder().firstName("Khelifi").lastName("Rayan").club("CR Belouizdad").country("Algérie").build());
-            Athlete a3 = athletes.save(Athlete.builder().firstName("Amir").lastName("K.").club("JCC").country("Algérie").build());
-            Athlete a4 = athletes.save(Athlete.builder().firstName("Mourad").lastName("O.").club("USMA").country("Algérie").build());
+            Athlete a1 = athletes.save(Athlete.builder().firstName("Yacine").lastName("Benali").club("JS Bordj Bou Arréridj").country("Algérie").build());
+            Athlete a2 = athletes.save(Athlete.builder().firstName("Rayan").lastName("Khelifi").club("CR Belouizdad").country("Algérie").build());
+            Athlete a3 = athletes.save(Athlete.builder().firstName("Amir").lastName("Kaci").club("JCC").country("Algérie").build());
+            Athlete a4 = athletes.save(Athlete.builder().firstName("Mourad").lastName("Ouali").club("USMA").country("Algérie").build());
 
             combats.save(Combat.builder().event(savedEvent).tatami(t1).athlete1(a1).athlete2(a2).combatNumber(25).weightCategory("-66 kg").ageCategory("Seniors").status(CombatStatus.IN_PROGRESS).scheduledStartTime(OffsetDateTime.now()).actualStartTime(OffsetDateTime.now()).build());
             combats.save(Combat.builder().event(savedEvent).tatami(t1).athlete1(a3).athlete2(a4).combatNumber(26).weightCategory("-73 kg").ageCategory("Seniors").status(CombatStatus.UPCOMING).scheduledStartTime(OffsetDateTime.now().plusMinutes(20)).build());
